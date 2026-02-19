@@ -1,0 +1,35 @@
+# Binaries
+filehound
+filehound.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build artifacts
+/dist/
+/bin/
+
+# Test artifacts
+*.test
+*.out
+coverage.out
+coverage.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+vendor/
+
+# Temporary files
+tmp/
+temp/
