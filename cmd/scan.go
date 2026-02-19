@@ -42,7 +42,7 @@ func init() {
 	scanCmd.Flags().String("out-file", "", "write output to file instead of stdout")
 	scanCmd.Flags().Bool("no-header", false, "omit header row in table/CSV output")
 
-	viper.BindPFlags(scanCmd.Flags())
+	_ = viper.BindPFlags(scanCmd.Flags())
 }
 
 func runScan(cmd *cobra.Command, args []string) {
@@ -90,7 +90,7 @@ func runScan(cmd *cobra.Command, args []string) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	defer formatter.End()
+	defer func() { _ = formatter.End() }()
 
 	for {
 		select {

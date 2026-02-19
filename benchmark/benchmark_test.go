@@ -115,7 +115,7 @@ func BenchmarkRegexMatcher(b *testing.B) {
 		b.Fatal(err)
 	}
 	defer os.Remove(tmpFile.Name())
-	tmpFile.WriteString("test content")
+	_, _ = tmpFile.WriteString("test content")
 	tmpFile.Close()
 	f.Path = tmpFile.Name()
 

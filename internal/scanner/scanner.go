@@ -130,7 +130,7 @@ func (s *Scanner) walkPath(root string, results chan<- Result) {
 	sem := make(chan struct{}, s.workers)
 	var wg sync.WaitGroup
 
-	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			select {
 			case results <- Result{Err: err}:

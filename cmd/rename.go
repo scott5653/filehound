@@ -47,7 +47,7 @@ func init() {
 	renameCmd.Flags().IntP("workers", "w", 0, "number of parallel workers")
 	renameCmd.Flags().Bool("force", false, "overwrite existing files")
 
-	renameCmd.MarkFlagRequired("pattern")
+	_ = renameCmd.MarkFlagRequired("pattern")
 }
 
 func runRename(cmd *cobra.Command, args []string) {
@@ -242,7 +242,7 @@ func (p *RenamePlanner) applyHashTemplates(result, path string) string {
 			if endIdx != -1 {
 				nStr := result[sha1Idx+7 : sha1Idx+endIdx]
 				n := 8
-				fmt.Sscanf(nStr, "%d", &n)
+				_, _ = fmt.Sscanf(nStr, "%d", &n)
 				if n > 40 {
 					n = 40
 				}
@@ -265,7 +265,7 @@ func (p *RenamePlanner) applyHashTemplates(result, path string) string {
 			if endIdx != -1 {
 				nStr := result[sha256Idx+9 : sha256Idx+endIdx]
 				n := 8
-				fmt.Sscanf(nStr, "%d", &n)
+				_, _ = fmt.Sscanf(nStr, "%d", &n)
 				if n > 64 {
 					n = 64
 				}

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/ripkitten-co/filehound/internal/version"
 	"github.com/spf13/cobra"
@@ -22,11 +21,4 @@ func Execute() error {
 
 func init() {
 	rootCmd.SetVersionTemplate(fmt.Sprintf("filehound %s\n", version.Get()))
-}
-
-func must(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
 }
