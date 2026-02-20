@@ -8,9 +8,6 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func TestS3Source_Live(t *testing.T) {
@@ -20,19 +17,10 @@ func TestS3Source_Live(t *testing.T) {
 
 	ctx := context.Background()
 
-	svc := s3.NewFromConfig(aws.Config{
-		Region: aws.String("us-east-1"),
-	}, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String("http://localhost:9000")
-		o.UsePathStyle = true
-	})
-
-	_, err := svc.ListBuckets(ctx, &s3.ListBucketsInput{})
-	if err != nil {
-		t.Skipf("MinIO not available: %v", err)
-	}
-
-	src := NewS3Source("test-bucket", "", WithS3Region("us-east-1"), WithS3Endpoint("http://localhost:9000"))
+	src := NewS3Source("test-bucket", "",
+		WithS3Region("us-east-1"),
+		WithS3Endpoint("http://localhost:9000"),
+		WithS3Credentials("minioadmin", "minioadmin"))
 	results, err := src.List(ctx)
 	if err != nil {
 		t.Fatalf("List failed: %v", err)
@@ -62,7 +50,8 @@ func TestS3Source_PresignedURL(t *testing.T) {
 
 	url, err := GetS3PresignedURL(ctx, "test-bucket", "test.txt", 15*time.Minute,
 		WithS3Region("us-east-1"),
-		WithS3Endpoint("http://localhost:9000"))
+		WithS3Endpoint("http://localhost:9000"),
+		WithS3Credentials("minioadmin", "minioadmin"))
 	if err != nil {
 		t.Fatalf("Presign failed: %v", err)
 	}

@@ -73,7 +73,7 @@ func NewS3Source(bucket, prefix string, opts ...S3Option) *S3Source {
 }
 
 func (s *S3Source) initClient(ctx context.Context) error {
-	var opts []func(*config.LoadOptions) error
+	opts := []func(*config.LoadOptions) error{}
 
 	if s.region != "" {
 		opts = append(opts, config.WithRegion(s.region))
@@ -94,6 +94,7 @@ func (s *S3Source) initClient(ctx context.Context) error {
 	if s.endpoint != "" {
 		clientOpts = append(clientOpts, func(o *s3.Options) {
 			o.BaseEndpoint = aws.String(s.endpoint)
+			o.UsePathStyle = true
 		})
 	}
 

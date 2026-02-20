@@ -20,19 +20,14 @@ services:
       retries: 3
 
   create-buckets:
-    image: minio/mc:latest
+    image: python:3-slim
     depends_on:
       minio:
         condition: service_healthy
-    entrypoint: /bin/sh
-    command: |
-      - mc alias set myminio http://minio:9000 minioadmin minioadmin
-      - mc mb myminio/test-bucket
-      - mc mb myminio/logs
-      - mc mb myminio/images
-      - echo "test content" | mc pipe myminio/test-bucket/test.txt
-      - echo '{"key": "value"}' | mc pipe myminio/test-bucket/config.json
-      - mc anonymous set download myminio/test-bucket
+    volumes:
+      - ./create_buckets.py:/script.py
+    entrypoint: ["sh", "-c"]
+    command: ["pip install boto3 -q && python3 /script.py"]
 
 volumes:
   minio-data:
