@@ -16,11 +16,8 @@ import (
 )
 
 var (
-	ErrInvalidS3Path  = errors.New("invalid S3 path")
-	ErrS3BucketEmpty  = errors.New("S3 bucket name is empty")
-	ErrS3ConfigFailed = errors.New("failed to load AWS config")
-	ErrS3ListFailed   = errors.New("failed to list S3 objects")
-	ErrS3GetFailed    = errors.New("failed to get S3 object")
+	ErrInvalidS3Path = errors.New("invalid S3 path")
+	ErrS3BucketEmpty = errors.New("S3 bucket name is empty")
 )
 
 type S3Source struct {
