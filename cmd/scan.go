@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+	"time"
 
 	"github.com/ripkitten-co/filehound/internal/matcher"
 	"github.com/ripkitten-co/filehound/internal/output"
 	"github.com/ripkitten-co/filehound/internal/scanner"
+	"github.com/ripkitten-co/filehound/internal/source"
 	"github.com/ripkitten-co/filehound/internal/tui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -44,6 +47,12 @@ func init() {
 	scanCmd.Flags().String("out-file", "", "write output to file instead of stdout")
 	scanCmd.Flags().Bool("no-header", false, "omit header row in table/CSV output")
 
+	scanCmd.Flags().String("s3-region", "", "AWS region for S3 sources")
+	scanCmd.Flags().String("s3-endpoint", "", "S3-compatible endpoint URL")
+	scanCmd.Flags().String("git-mode", "working", "Git scan mode: working, full")
+	scanCmd.Flags().String("git-branch", "", "Git branch to scan (for full mode)")
+	scanCmd.Flags().String("git-since", "", "Scan commits since (e.g., 2024-01-01)")
+
 	_ = viper.BindPFlags(scanCmd.Flags())
 }
 
@@ -67,16 +76,13 @@ func runScan(cmd *cobra.Command, args []string) {
 	follow, _ := cmd.Flags().GetBool("follow")
 	showProgress, _ := cmd.Flags().GetBool("progress")
 
-	opts := []scanner.Option{
-		scanner.WithPaths(paths...),
-		scanner.WithWorkers(workers),
-		scanner.WithExcludes(excludes...),
-		scanner.WithFollowLinks(follow),
+	src, err := detectSource(cmd, paths, workers, excludes, follow)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
-	s := scanner.New(opts...)
-
-	results, err := s.Scan()
+	results, err := src.List(ctx)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -227,4 +233,70 @@ func buildMatchers(cmd *cobra.Command) []matcher.Matcher {
 	}
 
 	return matchers
+}
+
+func detectSource(cmd *cobra.Command, paths []string, workers int, excludes []string, follow bool) (source.Source, error) {
+	if len(paths) == 0 {
+		return nil, scanner.ErrNoPath
+	}
+
+	path := paths[0]
+
+	if strings.HasPrefix(path, "s3://") {
+		s3Region, _ := cmd.Flags().GetString("s3-region")
+		s3Endpoint, _ := cmd.Flags().GetString("s3-endpoint")
+
+		bucket, prefix, err := source.ParseS3Path(path)
+		if err != nil {
+			return nil, err
+		}
+
+		opts := []source.S3Option{
+			source.WithS3Region(s3Region),
+			source.WithS3Endpoint(s3Endpoint),
+			source.WithS3Workers(workers),
+		}
+
+		return source.NewS3Source(bucket, prefix, opts...), nil
+	}
+
+	if strings.HasPrefix(path, "git://") || source.IsGitRepo(path) {
+		gitModeStr, _ := cmd.Flags().GetString("git-mode")
+		gitBranch, _ := cmd.Flags().GetString("git-branch")
+		gitSinceStr, _ := cmd.Flags().GetString("git-since")
+
+		var gitMode source.GitMode
+		if gitModeStr == "full" {
+			gitMode = source.GitModeFull
+		} else {
+			gitMode = source.GitModeWorking
+		}
+
+		opts := []source.GitOption{
+			source.WithGitMode(gitMode),
+			source.WithGitBranch(gitBranch),
+			source.WithGitWorkers(workers),
+		}
+
+		if gitSinceStr != "" {
+			since, err := time.Parse("2006-01-02", gitSinceStr)
+			if err != nil {
+				return nil, fmt.Errorf("invalid git-since date: %v", err)
+			}
+			opts = append(opts, source.WithGitSince(since))
+		}
+
+		gitPath := strings.TrimPrefix(path, "git://")
+		gitPath = strings.TrimPrefix(gitPath, "file://")
+
+		return source.NewGitSource(gitPath, opts...), nil
+	}
+
+	lsOpts := []source.LocalOption{
+		source.WithWorkers(workers),
+		source.WithExcludes(excludes...),
+		source.WithFollowLinks(follow),
+	}
+
+	return source.NewLocalSource(append(lsOpts, source.WithPaths(paths...))...), nil
 }

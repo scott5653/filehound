@@ -60,6 +60,11 @@ filehound scan [PATH...] [flags]
 | `-p, --progress` | Show progress bar | `--progress` |
 | `-o, --output` | Output format: table, json, csv | `--output json` |
 | `--out-file` | Write output to file | `--out-file results.json` |
+| `--s3-region` | AWS region for S3 sources | `--s3-region us-west-2` |
+| `--s3-endpoint` | S3-compatible endpoint | `--s3-endpoint http://localhost:9000` |
+| `--git-mode` | Git mode: working, full | `--git-mode full` |
+| `--git-branch` | Git branch to scan | `--git-branch main` |
+| `--git-since` | Scan commits since date | `--git-since 2024-01-01` |
 
 ### `rename` - Batch rename files
 
@@ -136,6 +141,35 @@ filehound scan /var/log \
   --ext .log \
   --size ">100MB" \
   --modified ">30d"
+```
+
+### Scan S3 Buckets
+
+```bash
+# Scan S3 bucket for log files
+filehound scan s3://mybucket/logs/ --ext .log
+
+# Scan with custom region
+filehound scan s3://mybucket/ --s3-region us-west-2 --ext .txt
+
+# Scan S3-compatible storage (MinIO, etc.)
+filehound scan s3://mybucket/ --s3-endpoint http://localhost:9000
+```
+
+### Scan Git Repositories
+
+```bash
+# Scan working tree (current files)
+filehound scan . --git-mode working --ext .go
+
+# Scan full git history for secrets
+filehound scan . --git-mode full --regex "api_key|secret|token"
+
+# Scan specific branch
+filehound scan . --git-mode full --git-branch main --regex "password"
+
+# Scan commits since date
+filehound scan . --git-mode full --git-since 2024-01-01 --ext .env
 ```
 
 ## Benchmarks
