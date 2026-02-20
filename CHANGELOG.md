@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Concurrent file hashing
   - Duplicate detection by content hash
   - Configurable buffer size for performance
+- Interactive progress display for `scan` command:
+  - Animated progress bar with gradient colors
+  - Real-time file count and error statistics
+  - Elapsed time display
+  - Press 'q' to cancel scan
+  - Enable with `--progress` or `-p` flag
+- `internal/tui` package with bubbletea integration
 
 ## [0.1.0] - 2026-02-20
 

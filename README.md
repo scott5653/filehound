@@ -57,6 +57,7 @@ filehound scan [PATH...] [flags]
 | `-w, --workers` | Parallel workers | `--workers 16` |
 | `--empty` | Match only empty files | `--empty` |
 | `--follow` | Follow symbolic links | `--follow` |
+| `-p, --progress` | Show progress bar | `--progress` |
 | `-o, --output` | Output format: table, json, csv | `--output json` |
 | `--out-file` | Write output to file | `--out-file results.json` |
 
