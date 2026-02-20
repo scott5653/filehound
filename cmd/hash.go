@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -167,8 +168,14 @@ func printHashResults(results []hash.Result, cmd *cobra.Command) {
 	noHeader, _ := cmd.Flags().GetBool("no-header")
 
 	if outputFormat == "json" {
+		enc := json.NewEncoder(os.Stdout)
 		for _, r := range results {
-			fmt.Printf(`{"path":"%s","hash":"%s","algorithm":"%s","size":%d}`+"\n", r.Path, r.Hash, r.Algorithm, r.Size)
+			_ = enc.Encode(map[string]interface{}{
+				"path":      r.Path,
+				"hash":      r.Hash,
+				"algorithm": string(r.Algorithm),
+				"size":      r.Size,
+			})
 		}
 		return
 	}
@@ -184,7 +191,11 @@ func printHashResults(results []hash.Result, cmd *cobra.Command) {
 	}
 
 	for _, r := range results {
-		fmt.Printf("%s  %s\n", r.Hash[:16], r.Path)
+		hashPrefix := r.Hash
+		if len(hashPrefix) > 16 {
+			hashPrefix = hashPrefix[:16]
+		}
+		fmt.Printf("%s  %s\n", hashPrefix, r.Path)
 	}
 }
 
