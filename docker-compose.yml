@@ -25,7 +25,7 @@ services:
       minio:
         condition: service_healthy
     volumes:
-      - ./create_buckets.py:/script.py
+      - ./scripts/create_buckets.py:/script.py
     entrypoint: ["sh", "-c"]
     command: ["pip install boto3 -q && python3 /script.py"]
 
