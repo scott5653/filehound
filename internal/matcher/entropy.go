@@ -3,8 +3,6 @@ package matcher
 import (
 	"math"
 	"os"
-
-	"github.com/ripkitten-co/filehound/internal/scanner"
 )
 
 const (
@@ -46,7 +44,7 @@ func NewEntropyMatcher(opts ...EntropyOption) *EntropyMatcher {
 	return e
 }
 
-func (e *EntropyMatcher) Match(f scanner.File) bool {
+func (e *EntropyMatcher) Match(f File) bool {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return false
@@ -104,7 +102,7 @@ func NewEntropyRangeMatcher(min, max float64, bufSize int) *EntropyRangeMatcher 
 	}
 }
 
-func (e *EntropyRangeMatcher) Match(f scanner.File) bool {
+func (e *EntropyRangeMatcher) Match(f File) bool {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return false

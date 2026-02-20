@@ -1,31 +1,14 @@
 package scanner
 
 import (
-	"errors"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"sync"
+	"context"
+
+	"github.com/ripkitten-co/filehound/internal/source"
 )
 
-var (
-	ErrNoPath       = errors.New("no path specified")
-	ErrPathNotFound = errors.New("path not found")
-)
+type File = source.File
 
-type File struct {
-	Path      string
-	Size      int64
-	ModTime   int64
-	Mode      fs.FileMode
-	IsDir     bool
-	IsSymlink bool
-}
-
-type Result struct {
-	File File
-	Err  error
-}
+type Result = source.Result
 
 type Scanner struct {
 	paths       []string
@@ -64,9 +47,7 @@ func WithFollowLinks(follow bool) Option {
 
 func New(opts ...Option) *Scanner {
 	s := &Scanner{
-		workers:     8,
-		excludes:    DefaultExcludes,
-		followLinks: false,
+		workers: 8,
 	}
 	for _, opt := range opts {
 		opt(s)
@@ -74,121 +55,35 @@ func New(opts ...Option) *Scanner {
 	return s
 }
 
-var DefaultExcludes = []string{
-	".git",
-	".svn",
-	".hg",
-	"node_modules",
-	"__pycache__",
-	".idea",
-	".vscode",
-	"target",
-	"dist",
-	"build",
-	".cache",
-	"vendor",
+func NewWithSource(src source.Source) *Scanner {
+	return &Scanner{}
 }
+
+var DefaultExcludes = source.DefaultExcludes
+
+var (
+	ErrNoPath       = source.ErrNoPath
+	ErrPathNotFound = source.ErrPathNotFound
+)
 
 func (s *Scanner) Scan() (<-chan Result, error) {
-	if len(s.paths) == 0 {
-		return nil, ErrNoPath
-	}
-
-	for _, p := range s.paths {
-		if _, err := os.Stat(p); err != nil {
-			if os.IsNotExist(err) {
-				return nil, ErrPathNotFound
-			}
-			return nil, err
-		}
-	}
-
-	results := make(chan Result, s.workers*10)
-	go s.walk(results)
-
-	return results, nil
+	return s.ScanContext(context.Background())
 }
 
-func (s *Scanner) walk(results chan<- Result) {
-	var wg sync.WaitGroup
-	wg.Add(len(s.paths))
-
-	for _, path := range s.paths {
-		go func(p string) {
-			defer wg.Done()
-			s.walkPath(p, results)
-		}(path)
+func (s *Scanner) ScanContext(ctx context.Context) (<-chan Result, error) {
+	lsOpts := []source.LocalOption{
+		source.WithWorkers(s.workers),
+	}
+	if len(s.paths) > 0 {
+		lsOpts = append(lsOpts, source.WithPaths(s.paths...))
+	}
+	if len(s.excludes) > 0 {
+		lsOpts = append(lsOpts, source.WithExcludes(s.excludes...))
+	}
+	if s.followLinks {
+		lsOpts = append(lsOpts, source.WithFollowLinks(s.followLinks))
 	}
 
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-}
-
-func (s *Scanner) walkPath(root string, results chan<- Result) {
-	sem := make(chan struct{}, s.workers)
-	var wg sync.WaitGroup
-
-	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			select {
-			case results <- Result{Err: err}:
-			default:
-			}
-			return nil
-		}
-
-		if d.IsDir() && s.isExcluded(path, d.Name()) {
-			return fs.SkipDir
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			sem <- struct{}{}
-			defer func() { <-sem }()
-
-			info, err := d.Info()
-			if err != nil {
-				results <- Result{Err: err}
-				return
-			}
-
-			f := File{
-				Path:  path,
-				Size:  info.Size(),
-				Mode:  info.Mode(),
-				IsDir: d.IsDir(),
-			}
-
-			if mt := info.ModTime(); !mt.IsZero() {
-				f.ModTime = mt.Unix()
-			}
-
-			f.IsSymlink = info.Mode()&fs.ModeSymlink != 0
-
-			results <- Result{File: f}
-		}()
-
-		return nil
-	})
-
-	wg.Wait()
-}
-
-func (s *Scanner) isExcluded(path, name string) bool {
-	for _, pattern := range s.excludes {
-		if name == pattern {
-			return true
-		}
-		if matched, _ := filepath.Match(pattern, name); matched {
-			return true
-		}
-	}
-	return false
+	ls := source.NewLocalSource(lsOpts...)
+	return ls.List(ctx)
 }

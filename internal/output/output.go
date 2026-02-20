@@ -8,12 +8,14 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/ripkitten-co/filehound/internal/scanner"
+	"github.com/ripkitten-co/filehound/internal/source"
 )
+
+type File = source.File
 
 type Formatter interface {
 	Start() error
-	Write(f scanner.File) error
+	Write(f File) error
 	End() error
 }
 
@@ -41,7 +43,7 @@ func (t *TableFormatter) Start() error {
 	return nil
 }
 
-func (t *TableFormatter) Write(f scanner.File) error {
+func (t *TableFormatter) Write(f File) error {
 	size := formatSize(f.Size)
 	modTime := formatTime(f.ModTime)
 	_, err := fmt.Fprintf(t.tw, "%s\t%s\t%s\n", f.Path, size, modTime)
@@ -68,7 +70,7 @@ func (j *JSONFormatter) Start() error {
 	return nil
 }
 
-func (j *JSONFormatter) Write(f scanner.File) error {
+func (j *JSONFormatter) Write(f File) error {
 	return j.encoder.Encode(f)
 }
 
@@ -94,7 +96,7 @@ func (c *CSVFormatter) Start() error {
 	return nil
 }
 
-func (c *CSVFormatter) Write(f scanner.File) error {
+func (c *CSVFormatter) Write(f File) error {
 	if !c.started && !c.noHeader {
 		if err := c.writer.Write([]string{"path", "size", "modtime", "mode", "is_symlink"}); err != nil {
 			return err

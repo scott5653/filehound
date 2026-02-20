@@ -1,22 +1,24 @@
 package matcher
 
 import (
-	"github.com/ripkitten-co/filehound/internal/scanner"
+	"github.com/ripkitten-co/filehound/internal/source"
 )
 
+type File = source.File
+
 type Matcher interface {
-	Match(f scanner.File) bool
+	Match(f File) bool
 }
 
-type MatcherFunc func(f scanner.File) bool
+type MatcherFunc func(f File) bool
 
-func (mf MatcherFunc) Match(f scanner.File) bool {
+func (mf MatcherFunc) Match(f File) bool {
 	return mf(f)
 }
 
 type All []Matcher
 
-func (a All) Match(f scanner.File) bool {
+func (a All) Match(f File) bool {
 	for _, m := range a {
 		if !m.Match(f) {
 			return false
@@ -27,7 +29,7 @@ func (a All) Match(f scanner.File) bool {
 
 type Any []Matcher
 
-func (a Any) Match(f scanner.File) bool {
+func (a Any) Match(f File) bool {
 	for _, m := range a {
 		if m.Match(f) {
 			return true
@@ -38,7 +40,7 @@ func (a Any) Match(f scanner.File) bool {
 
 type None []Matcher
 
-func (n None) Match(f scanner.File) bool {
+func (n None) Match(f File) bool {
 	for _, m := range n {
 		if m.Match(f) {
 			return false
@@ -48,13 +50,13 @@ func (n None) Match(f scanner.File) bool {
 }
 
 func Always() Matcher {
-	return MatcherFunc(func(f scanner.File) bool {
+	return MatcherFunc(func(f File) bool {
 		return true
 	})
 }
 
 func Never() Matcher {
-	return MatcherFunc(func(f scanner.File) bool {
+	return MatcherFunc(func(f File) bool {
 		return false
 	})
 }

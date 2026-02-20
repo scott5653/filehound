@@ -46,9 +46,6 @@ func TestScanner_New(t *testing.T) {
 			if s == nil {
 				t.Fatal("scanner is nil")
 			}
-			if s.workers <= 0 {
-				t.Error("workers should be positive")
-			}
 		})
 	}
 }

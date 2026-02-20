@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/h2non/filetype"
-	"github.com/ripkitten-co/filehound/internal/scanner"
 )
 
 type MIMEMatcher struct {
@@ -37,7 +36,7 @@ func NewMIMEMatcher(mimeTypes []string, opts ...MIMEOption) *MIMEMatcher {
 	return m
 }
 
-func (m *MIMEMatcher) Match(f scanner.File) bool {
+func (m *MIMEMatcher) Match(f File) bool {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return false
@@ -86,7 +85,7 @@ func NewExtensionMatcher(extensions []string) *ExtensionMatcher {
 	return e
 }
 
-func (e *ExtensionMatcher) Match(f scanner.File) bool {
+func (e *ExtensionMatcher) Match(f File) bool {
 	for ext := range e.extensions {
 		if strings.HasSuffix(strings.ToLower(f.Path), ext) {
 			return true
@@ -109,7 +108,7 @@ func NewFileTypeMatcher(types []string) *FileTypeMatcher {
 	return t
 }
 
-func (t *FileTypeMatcher) Match(f scanner.File) bool {
+func (t *FileTypeMatcher) Match(f File) bool {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return false
@@ -136,7 +135,7 @@ func (t *FileTypeMatcher) Match(f scanner.File) bool {
 	return false
 }
 
-func IsBinary(f scanner.File) bool {
+func IsBinary(f File) bool {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return false

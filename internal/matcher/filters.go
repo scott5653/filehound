@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/ripkitten-co/filehound/internal/scanner"
 )
 
 type SizeMatcher struct {
@@ -75,7 +73,7 @@ func NewSizeRangeMatcher(min, max int64) *SizeMatcher {
 	return &SizeMatcher{min: min, max: max}
 }
 
-func (s *SizeMatcher) Match(f scanner.File) bool {
+func (s *SizeMatcher) Match(f File) bool {
 	if s.min > 0 && f.Size < s.min {
 		return false
 	}
@@ -137,7 +135,7 @@ func NewTimeRangeMatcher(before, after time.Time) *TimeMatcher {
 	}
 }
 
-func (t *TimeMatcher) Match(f scanner.File) bool {
+func (t *TimeMatcher) Match(f File) bool {
 	if t.before > 0 && f.ModTime > t.before {
 		return false
 	}
@@ -182,7 +180,7 @@ func NewOwnerMatcher(uid, gid int) *OwnerMatcher {
 	return &OwnerMatcher{uid: uid, gid: gid}
 }
 
-func (o *OwnerMatcher) Match(f scanner.File) bool {
+func (o *OwnerMatcher) Match(f File) bool {
 	return getOwner(f.Path, o.uid, o.gid)
 }
 
@@ -198,7 +196,7 @@ func NewGlobMatcher(pattern string) *GlobMatcher {
 	return &GlobMatcher{pattern: pattern}
 }
 
-func (g *GlobMatcher) Match(f scanner.File) bool {
+func (g *GlobMatcher) Match(f File) bool {
 	matched, err := filepath.Match(g.pattern, filepath.Base(f.Path))
 	if err != nil {
 		return false
@@ -214,7 +212,7 @@ func NewPathMatcher(pattern string) *PathMatcher {
 	return &PathMatcher{pattern: pattern}
 }
 
-func (p *PathMatcher) Match(f scanner.File) bool {
+func (p *PathMatcher) Match(f File) bool {
 	matched, err := filepath.Match(p.pattern, f.Path)
 	if err != nil {
 		return false
@@ -230,7 +228,7 @@ func NewSymlinkMatcher(follow bool) *SymlinkMatcher {
 	return &SymlinkMatcher{follow: follow}
 }
 
-func (s *SymlinkMatcher) Match(f scanner.File) bool {
+func (s *SymlinkMatcher) Match(f File) bool {
 	if s.follow {
 		return true
 	}
@@ -243,6 +241,6 @@ func NewEmptyMatcher() *EmptyMatcher {
 	return &EmptyMatcher{}
 }
 
-func (e *EmptyMatcher) Match(f scanner.File) bool {
+func (e *EmptyMatcher) Match(f File) bool {
 	return f.Size == 0
 }

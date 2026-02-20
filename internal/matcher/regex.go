@@ -5,8 +5,6 @@ import (
 	"io"
 	"os"
 	"regexp"
-
-	"github.com/ripkitten-co/filehound/internal/scanner"
 )
 
 type RegexMatcher struct {
@@ -57,7 +55,7 @@ func MustRegex(pattern string, opts ...RegexOption) *RegexMatcher {
 	return r
 }
 
-func (r *RegexMatcher) Match(f scanner.File) bool {
+func (r *RegexMatcher) Match(f File) bool {
 	if r.matchPath {
 		return r.pattern.MatchString(f.Path)
 	}
@@ -97,7 +95,7 @@ func NewRegexPathMatcher(pattern string) (*RegexPathMatcher, error) {
 	return &RegexPathMatcher{pattern: re}, nil
 }
 
-func (r *RegexPathMatcher) Match(f scanner.File) bool {
+func (r *RegexPathMatcher) Match(f File) bool {
 	return r.pattern.MatchString(f.Path)
 }
 
@@ -116,7 +114,7 @@ func NewContentMatcher(pattern string, bufSize int) *ContentMatcher {
 	}
 }
 
-func (c *ContentMatcher) Match(f scanner.File) bool {
+func (c *ContentMatcher) Match(f File) bool {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return false
