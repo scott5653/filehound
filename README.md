@@ -30,6 +30,9 @@ filehound scan . --ext .go
 
 # Batch rename with hash
 filehound rename ./photos --glob "*.jpg" --pattern "img_{{sha1:8}}{{ext}}" --dry-run
+
+# Find duplicate files
+filehound hash . --duplicates
 ```
 
 ## Commands
@@ -82,6 +85,22 @@ filehound rename [PATH...] --pattern TEMPLATE [flags]
 | `{{sha1:N}}` | First N chars of SHA1 hash (default: 8) |
 | `{{sha256:N}}` | First N chars of SHA256 hash (default: 8) |
 
+### `hash` - Compute file hashes and find duplicates
+
+```bash
+filehound hash [PATH...] [flags]
+```
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `-a, --algorithm` | Hash algorithm: sha1, sha256, sha512 | `--algorithm sha1` |
+| `-d, --duplicates` | Find duplicate files only | `--duplicates` |
+| `-g, --glob` | Glob pattern | `--glob "*.jpg"` |
+| `--ext` | File extensions | `--ext .go,.ts` |
+| `--size` | Size filter | `--size ">1MB"` |
+| `-w, --workers` | Parallel workers | `--workers 16` |
+| `-o, --output` | Output format: table, json, csv | `--output json` |
+
 ## Examples
 
 ### Hunt Secrets
@@ -98,10 +117,14 @@ filehound scan . \
 ### Find Duplicates
 
 ```bash
-# Find files with same content (rename with hash)
-filehound scan . --glob "*.jpg" --output json | \
-  jq -r '.Path' | \
-  xargs -I{} filehound rename {} --pattern "{{sha1:12}}{{ext}}" --dry-run
+# Find duplicate files by content hash
+filehound hash . --duplicates
+
+# Find duplicate images only
+filehound hash . --ext .jpg,.png --duplicates
+
+# Hash files in JSON format for scripting
+filehound hash . --ext .go --output json | jq
 ```
 
 ### Clean Up Logs
