@@ -10,6 +10,7 @@ import (
 	"github.com/ripkitten-co/filehound/internal/matcher"
 	"github.com/ripkitten-co/filehound/internal/output"
 	"github.com/ripkitten-co/filehound/internal/scanner"
+	"github.com/ripkitten-co/filehound/internal/tui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -38,6 +39,7 @@ func init() {
 	scanCmd.Flags().IntP("workers", "w", 0, "number of parallel workers (default: 8)")
 	scanCmd.Flags().Bool("empty", false, "match only empty files")
 	scanCmd.Flags().Bool("follow", false, "follow symbolic links")
+	scanCmd.Flags().BoolP("progress", "p", false, "show progress bar during scan")
 	scanCmd.Flags().StringP("output", "o", "", "output format: table, json, csv (default: table)")
 	scanCmd.Flags().String("out-file", "", "write output to file instead of stdout")
 	scanCmd.Flags().Bool("no-header", false, "omit header row in table/CSV output")
@@ -63,6 +65,7 @@ func runScan(cmd *cobra.Command, args []string) {
 	excludes := append(scanner.DefaultExcludes, excludeFlags...)
 
 	follow, _ := cmd.Flags().GetBool("follow")
+	showProgress, _ := cmd.Flags().GetBool("progress")
 
 	opts := []scanner.Option{
 		scanner.WithPaths(paths...),
@@ -92,15 +95,34 @@ func runScan(cmd *cobra.Command, args []string) {
 	}
 	defer func() { _ = formatter.End() }()
 
+	var progress *tui.Program
+	if showProgress {
+		progress = tui.NewProgressProgram()
+		progress.Start()
+	}
+
+	var filesFound, errors int
+	var totalBytes int64
+
 	for {
 		select {
 		case <-ctx.Done():
+			if progress != nil {
+				progress.Quit()
+			}
 			return
 		case r, ok := <-results:
 			if !ok {
+				if progress != nil {
+					progress.Quit()
+				}
 				return
 			}
 			if r.Err != nil {
+				errors++
+				if progress != nil {
+					progress.Send(tui.ProgressMsg{Errors: 1})
+				}
 				continue
 			}
 
@@ -115,6 +137,16 @@ func runScan(cmd *cobra.Command, args []string) {
 				if !matched {
 					continue
 				}
+			}
+
+			filesFound++
+			totalBytes += r.File.Size
+
+			if progress != nil {
+				progress.Send(tui.ProgressMsg{
+					FilesFound: 1,
+					Bytes:      r.File.Size,
+				})
 			}
 
 			if err := formatter.Write(r.File); err != nil {
